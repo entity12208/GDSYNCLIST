@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD Sync List</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <style>
+        .list-container {
+            min-height: 200px;
+        }
+        .handle {
+            cursor: grab;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-white shadow p-4 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-600">GD Sync List</h1>
+            <nav>
+                <ul class="flex gap-4 items-center">
+                    <li><button id="nav-list" class="text-indigo-600 font-semibold">List</button></li>
+                    <li><button id="nav-submit-level" class="text-slate-600">Submit Level</button></li>
+                    <li><button id="nav-submit-record" class="text-slate-600">Submit Record</button></li>
+                    <li><button id="nav-rankings" class="text-slate-600">Rankings</button></li>
+                    <li><button id="nav-guidelines" class="text-slate-600">Guidelines</button></li>
+                    <li><button id="nav-admin" class="text-slate-600 hidden">Admin</button></li>
+                    <li id="userArea">
+                        <button id="signin" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white">Sign in</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 mt-4">
+        
+        <div id="view-gate" class="text-center p-8 bg-white rounded-xl shadow">
+            <h2 class="text-2xl font-bold mb-4">Welcome to GD Sync List</h2>
+            <p class="text-slate-600 mb-6">Please sign in to view the list and all features.</p>
+            <button id="gate-signin" class="px-6 py-3 rounded-lg bg-indigo-600 text-white font-semibold">Sign in with Google</button>
+        </div>
+
+        <div id="view-list" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Levels List</h2>
+                <button id="addLevelBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hidden">
+                    + Add Level
+                </button>
+            </div>
+            <div id="levelsList" class="space-y-4 list-container"></div>
+        </div>
+        
+        <div id="view-submit-level" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Submit a Level</h2>
+            <form class="space-y-4 p-6 bg-white rounded-xl shadow">
+                <p>Fill out the form below to submit a new sync level for the list. It will be reviewed by a moderator.</p>
+                <div>
+                    <label for="sub_name" class="block font-medium">Level Name</label>
+                    <input type="text" id="sub_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="sub_gdid" class="block font-medium">Geometry Dash ID</label>
+                    <input type="text" id="sub_gdid" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="sub_desc" class="block font-medium">Description</label>
+                    <textarea id="sub_desc" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                </div>
+                <div>
+                    <label for="sub_verif" class="block font-medium">Verification Video URL</label>
+                    <input type="url" id="sub_verif" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="button" id="submitLevelBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Submit</button>
+            </form>
+        </div>
+        
+        <div id="view-submit-record" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Submit a Record</h2>
+            <form class="space-y-4 p-6 bg-white rounded-xl shadow">
+                <p>Submit your record for a level already on the list. Records must be at least 60%.</p>
+                <div>
+                    <label for="rec_levelname" class="block font-medium">Level Name</label>
+                    <input type="text" id="rec_levelname" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="rec_progress" class="block font-medium">Progress (%)</label>
+                    <input type="number" id="rec_progress" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="rec_video" class="block font-medium">Video URL</label>
+                    <input type="url" id="rec_video" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <button type="button" id="submitRecordBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Submit</button>
+            </form>
+        </div>
+
+        <div id="view-rankings" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Player Rankings</h2>
+            <div id="rankingsTable" class="bg-white rounded-xl shadow overflow-hidden"></div>
+        </div>
+
+        <div id="view-guidelines" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Guidelines</h2>
+            <div id="guidelinesBox" class="p-6 bg-white rounded-xl shadow"></div>
+        </div>
+        
+        <div id="view-admin" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="p-6 bg-white rounded-xl shadow">
+                    <h3 class="text-xl font-bold mb-4">Pending Submissions</h3>
+                    <div id="pendingList" class="space-y-4"></div>
+                </div>
+                <div class="p-6 bg-white rounded-xl shadow">
+                    <h3 class="text-xl font-bold mb-4">User Management</h3>
+                    <div id="usersList" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    
+    <div id="addLevelModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Add New Level</h3>
+                <button id="closeAddLevel" class="text-gray-500 hover:text-gray-700">&times;</button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label for="lvl_name" class="block font-medium">Level Name</label>
+                    <input type="text" id="lvl_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="lvl_gdid" class="block font-medium">Geometry Dash ID</label>
+                    <input type="text" id="lvl_gdid" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="lvl_desc" class="block font-medium">Description</label>
+                    <textarea id="lvl_desc" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                </div>
+                <div>
+                    <label for="lvl_verif" class="block font-medium">Verification Video URL</label>
+                    <input type="url" id="lvl_verif" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2">
+                </div>
+            </form>
+            <div class="mt-6 text-right">
+                <button id="saveLevel" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Save Level</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
