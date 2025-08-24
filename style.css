@@ -1,0 +1,10 @@
+/* Custom styles */
+.prose h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+.prose ul {
+    list-style: disc;
+    margin-left: 1.5rem;
+}
